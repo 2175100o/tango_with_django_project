@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+{% load staticfiles %}
+
+<html>
+
+	<head>
+		<title>About</title>
+	</head>
+
+	<body>
+		<h1>{{firstline}}</h1>
+		<div>
+			{{madeby}} <br/>
+			<img src="{{MEDIA_URL}}cat.jpg" 
+				alt="Picture of cat" />
+		</div>
+		<div>
+			<a href="/rango/">Index</a><br />
+			<img src="{%static "images/rango.jpg" %}"
+				alt="Picture of Rango" />
+		</div>
+	</body>
+
+</html>
