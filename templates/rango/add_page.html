@@ -1,8 +1,12 @@
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Rango - Add Page</title>
-	</head>
+{% extends 'rango/base.html' %}
+{% load staticfiles %}
+
+
+{% block title_block %}
+	Add Page
+{% endblock %}
+
+{% block body_block %}
 	<body>
 		{% if category %}
 			
@@ -22,7 +26,6 @@
 			
 		{% else %}
 			The specified category does not exist!
-		{% endif%}
-			
+		{% endif%}	
 	</body>
-</html>
+{% endblock %}
