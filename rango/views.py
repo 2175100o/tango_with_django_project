@@ -9,24 +9,30 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
 
 
 def index(request):
+    request.session.set_test_cookie()
     #Constuct a dictionary to pass to the template engine as its context
     #Note the key boldmessage is the same as {{boldmessage}} in the template
     category_list = Category.objects.order_by('-likes')[:5]
     page_list = Page.objects.order_by('-views')[:5]
+    context_dict = {'pages': page_list,'categories': category_list}
 
-    
-    context_dict = {'pages': page_list,
-                    'categories': category_list}
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
 
     #Return a rendered response to send to the client
     #We make use of the shortcut function to make our lives easier
     #Note that the first parameter is teh template we wish to use.
-    return render(request, 'rango/index.html', context=context_dict)
+    response = render(request, 'rango/index.html', context=context_dict)
+    return response
 
 def about(request):
+    if request.session.test_cookie_worked():
+        print("TEST COOKIE WORKED!")
+    request.session.delete_test_cookie()
     #Construct Dictionary
     context_dict = {'firstline' : "Rango says here is the about page.",
                     'madeby' : "This tutorial has been put together by Samuel Owen-Hughes."}
@@ -152,3 +158,30 @@ def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('index'))
 
+# A helper method
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+
+
+# Updated the function definition
+def visitor_cookie_handler(request):
+    visits = int(get_server_side_cookie(request, 'visits', '1'))
+    last_visit_cookie = get_server_side_cookie(request,'last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7],'%Y-%m-%d %H:%M:%S')
+
+    # If it's been more than a day since the last visit...
+    if (datetime.now() - last_visit_time).days > 0:
+        visits = visits + 1
+        #update the last visit cookie now that we have updated the count
+        request.session['last_visit'] = str(datetime.now())
+    else:
+        visits = 1
+        # set the last visit cookie
+        request.session['last_visit'] = last_visit_cookie
+
+    # Update/set the visits cookie
+    request.session['visits'] = visits
