@@ -32,10 +32,14 @@ def index(request):
 def about(request):
     if request.session.test_cookie_worked():
         print("TEST COOKIE WORKED!")
-    request.session.delete_test_cookie()
+    request.session.delete_test_cookie()
+
+    visitor_cookie_handler(request)
+
     #Construct Dictionary
     context_dict = {'firstline' : "Rango says here is the about page.",
-                    'madeby' : "This tutorial has been put together by Samuel Owen-Hughes."}
+                    'madeby' : "This tutorial has been put together by Samuel Owen-Hughes.",
+                    'visits': request.session['visits']}
 
     #Render Request    
     return render(request, 'rango/about.html', context = context_dict)
@@ -163,7 +167,8 @@ def get_server_side_cookie(request, cookie, default_val=None):
     val = request.session.get(cookie)
     if not val:
         val = default_val
-    return val
+    return val
+
 
 
 
@@ -184,4 +189,5 @@ def visitor_cookie_handler(request):
         request.session['last_visit'] = last_visit_cookie
 
     # Update/set the visits cookie
-    request.session['visits'] = visits
+    request.session['visits'] = visits
+
